@@ -10,7 +10,7 @@ import datetime
 
 image_path = sg.popup_get_file('Open', file_types=(("ALL Files", "."),), default_path="/Users/thanhtuan/Desktop/Images/moon.png")
 c_nguong = "null"
-img_c_nguong = "null"
+backup_cat_nguong = "null"
 d_anh = "null"
 img_d_anh = "null"
 image_temp = ""
@@ -21,7 +21,8 @@ def update():
 	# change = "sá"
 	print("i")
 
-	
+# def perform_daoanh(image):
+
 	
 
 def log_time():
@@ -55,7 +56,7 @@ def cv2pil(cv_img):
 	return pil_image
 
 def update_image(windo,original,blur,contrast,emboss,contour,flipx,flipy,activeCatNg,nguong,daoanh):
-	global image, c_nguong, d_anh, img_c_nguong, img_d_anh
+	global image, c_nguong, d_anh, backup_cat_nguong, img_d_anh
 	# global change
 	change = False
 	image = original.filter(ImageFilter.GaussianBlur(blur))
@@ -66,10 +67,10 @@ def update_image(windo,original,blur,contrast,emboss,contour,flipx,flipy,activeC
 			temp = image
 			temp = dao_anh(pil2cv(temp))
 			temp = cv2pil(temp)
-			np_daoanh = temp
-			# if(d_anh!=np_daoanh):
-			image = np_daoanh
+
+			image = temp
 			img_d_anh = image
+
 			d_anh = True
 			change = False
 			print("da")
@@ -77,10 +78,10 @@ def update_image(windo,original,blur,contrast,emboss,contour,flipx,flipy,activeC
 			temp = image
 			temp = dao_anh(pil2cv(temp))
 			temp = cv2pil(temp)
-			np_daoanh = temp
-			# if(d_anh!=np_daoanh):
-			image = np_daoanh
+
+			image = temp
 			img_d_anh = image
+
 			d_anh = True
 			change = True
 			print("da")
@@ -99,13 +100,12 @@ def update_image(windo,original,blur,contrast,emboss,contour,flipx,flipy,activeC
 				window['-ActiveCatNguong-'].update(True)
 				temp = cat_nguong(pil2cv(temp),nguong)
 				temp = cv2pil(temp)
-				# gl_nguong = nguong
-				np_nguong = temp
-				# if(c_nguong!=np_nguong):
-				image = np_nguong
+
+				image = temp
+				backup_cat_nguong = image
+
 				c_nguong = True
 				change = False
-				img_c_nguong = image
 				print("cn")
 			else:
 				window['-ActiveCatNguong-'].update(False)
@@ -116,18 +116,18 @@ def update_image(windo,original,blur,contrast,emboss,contour,flipx,flipy,activeC
 				window['-ActiveCatNguong-'].update(True)
 				temp = cat_nguong(pil2cv(temp),nguong)
 				temp = cv2pil(temp)
-				# gl_nguong = nguong
-				np_nguong = temp
-				# if(c_nguong!=np_nguong):
-				image = np_nguong
+
+				image = temp
+				backup_cat_nguong = image
+
 				c_nguong = True
-				img_c_nguong = image
+				change = True
 				print("cn")
 			else:
 				window['-ActiveCatNguong-'].update(False)
 				sg.popup('Threshold value is invalid!!!!')
 		else:
-			image = img_c_nguong
+			image = backup_cat_nguong
 	else:
 		if(c_nguong!=False):
 			c_nguong = False
