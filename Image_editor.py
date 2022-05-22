@@ -1,13 +1,47 @@
 from email.policy import default
+from pickle import FALSE
 import PySimpleGUI as sg
 from PIL import Image, ImageFilter, ImageOps
 from io import BytesIO
 import cv2
-from cv2 import threshold     # Thư viện OpenCV
 import numpy
 from lab1 import *
+import datetime
 
+image_path = sg.popup_get_file('Open', file_types=(("ALL Files", "."),), default_path="/Users/thanhtuan/Desktop/Images/moon.png")
+c_nguong = "null"
+img_c_nguong = "null"
+d_anh = "null"
+img_d_anh = "null"
+image_temp = ""
+# change = False
 
+def update():
+	# global change
+	# change = "sá"
+	print("i")
+
+	
+	
+
+def log_time():
+	log = str(datetime.datetime.now().time())
+	return log
+
+LAYOUT = sg.Column([
+	[sg.Frame('Blur',layout = [[sg.Slider(range = (0,255), orientation = 'h', key = '-BLUR-')]])],
+	[sg.Frame('Contrast',layout = [[sg.Slider(range = (0,10), orientation = 'h', key = '-CONTRAST-')]])],
+	[sg.Frame('Cắt ngưỡng',layout = [[
+		sg.Input(default_text = "", size = (12, 30), key='-CatNguong-'),
+		sg.Checkbox('Apply', key = '-ActiveCatNguong-')
+	]])],
+	[sg.Checkbox('Emboss', key = '-EMBOSS-'), sg.Checkbox('Contour', key = '-CONTOUR-')],
+	[sg.Checkbox('DaoAnh', key = '-DaoAnh-')],
+
+	[sg.Checkbox('Flip x', key = '-FLIPX-'), sg.Checkbox('Flip y', key = '-FLIPY-')],
+	[sg.Button('Save image', key = '-SAVE-')],])
+image_col = sg.Column([[sg.Image(image_path, key = '-IMAGE-')]])
+layout = [[LAYOUT,image_col]]
 def pil2cv(pil_img):
 	numpy_image=numpy.array(pil_img)  
 
@@ -20,60 +54,108 @@ def cv2pil(cv_img):
 	pil_image=Image.fromarray(color_coverted)
 	return pil_image
 
-def update_image(windo,original,blur,contrast,emboss,contour,flipx,flipy,cat,thres,threshold):
-	global image
+def update_image(windo,original,blur,contrast,emboss,contour,flipx,flipy,activeCatNg,nguong,daoanh):
+	global image, c_nguong, d_anh, img_c_nguong, img_d_anh
+	# global change
+	change = False
 	image = original.filter(ImageFilter.GaussianBlur(blur))
 	image = image.filter(ImageFilter.UnsharpMask(contrast))
 
+	if daoanh:
+		if(change==True):
+			temp = image
+			temp = dao_anh(pil2cv(temp))
+			temp = cv2pil(temp)
+			np_daoanh = temp
+			# if(d_anh!=np_daoanh):
+			image = np_daoanh
+			img_d_anh = image
+			d_anh = True
+			change = False
+			print("da")
+		elif(d_anh!=True):
+			temp = image
+			temp = dao_anh(pil2cv(temp))
+			temp = cv2pil(temp)
+			np_daoanh = temp
+			# if(d_anh!=np_daoanh):
+			image = np_daoanh
+			img_d_anh = image
+			d_anh = True
+			change = True
+			print("da")
+		else:
+			image = img_d_anh
+	else:
+		if(d_anh!=False):
+			d_anh = False
+			change = True
+			
+	
+	if activeCatNg:
+		if(change==True):
+			temp = image
+			if(nguong.isnumeric()):
+				window['-ActiveCatNguong-'].update(True)
+				temp = cat_nguong(pil2cv(temp),nguong)
+				temp = cv2pil(temp)
+				# gl_nguong = nguong
+				np_nguong = temp
+				# if(c_nguong!=np_nguong):
+				image = np_nguong
+				c_nguong = True
+				change = False
+				img_c_nguong = image
+				print("cn")
+			else:
+				window['-ActiveCatNguong-'].update(False)
+				sg.popup('Threshold value is invalid!!!!')
+		elif(c_nguong!=True):
+			temp = image
+			if(nguong.isnumeric()):
+				window['-ActiveCatNguong-'].update(True)
+				temp = cat_nguong(pil2cv(temp),nguong)
+				temp = cv2pil(temp)
+				# gl_nguong = nguong
+				np_nguong = temp
+				# if(c_nguong!=np_nguong):
+				image = np_nguong
+				c_nguong = True
+				img_c_nguong = image
+				print("cn")
+			else:
+				window['-ActiveCatNguong-'].update(False)
+				sg.popup('Threshold value is invalid!!!!')
+		else:
+			image = img_c_nguong
+	else:
+		if(c_nguong!=False):
+			c_nguong = False
+			change = True
+
+		# change = False
+
 	if emboss:
 		image = image.filter(ImageFilter.EMBOSS())
+	
 	if contour:
 		image = image.filter(ImageFilter.CONTOUR())
-
+	
 	if flipx:
 		image = ImageOps.mirror(image)
 	if flipy:
 		image = ImageOps.flip(image)
 
-	if threshold:
-		# print(image)
-		# print(pil2cv(image))
-		image = dao_anh(pil2cv(image))
-		image = cv2pil(image)
-	
-	if cat:
-		if(thres.isnumeric()):
-			window['-Cat-'].update(True)
-			image = cat_nguong(pil2cv(image),thres)
-			image = cv2pil(image)
-			print("done")
-		else:
-			window['-Cat-'].update(False)
-			sg.popup('Threshold value is invalid!!!!')
 
 
-
+	# print("c_nguong: "+str(c_nguong)+", d_anh: "+str(d_anh))
+	# print(str(change))
 	bio = BytesIO()
 	image.save(bio, format = 'PNG')
+	image_temp = image
 
 	window['-IMAGE-'].update(data = bio.getvalue())
 
-image_path = sg.popup_get_file('Open', file_types=(("ALL Files", "."),), default_path="/Users/thanhtuan/Desktop/Images/moon.png")
-
-LAYOUT = sg.Column([
-	[sg.Frame('Blur',layout = [[sg.Slider(range = (0,255), orientation = 'h', key = '-BLUR-')]])],
-	[sg.Frame('Contrast',layout = [[sg.Slider(range = (0,10), orientation = 'h', key = '-CONTRAST-')]])],
-	[sg.Frame('Cắt ngưỡng',layout = [[
-		sg.Input(default_text = "", size = (12, 30), key='-Thres-'),
-		sg.Checkbox('Apply', key = '-Cat-')
-	]])],
-	[sg.Checkbox('Emboss', key = '-EMBOSS-'), sg.Checkbox('Contour', key = '-CONTOUR-')],
-	[sg.Checkbox('Threshold', key = '-THRESHOLD-')],
-
-	[sg.Checkbox('Flip x', key = '-FLIPX-'), sg.Checkbox('Flip y', key = '-FLIPY-')],
-	[sg.Button('Save image', key = '-SAVE-')],])
-image_col = sg.Column([[sg.Image(image_path, key = '-IMAGE-')]])
-layout = [[LAYOUT,image_col]]
 
 original = Image.open(image_path)
 window = sg.Window('Image Editor', layout)
@@ -83,8 +165,8 @@ while True:
 	if event == sg.WIN_CLOSED:
 		break
 
-	# if values['-Cat-']:
-	# 	window['-Cat-'].update(True)
+	# if values['-ActiveCatNguong-']:
+	# 	window['-ActiveCatNguong-'].update(True)
 
 	update_image(
 		window,
@@ -95,9 +177,9 @@ while True:
 		values['-CONTOUR-'],
 		values['-FLIPX-'],
 		values['-FLIPY-'],
-		values['-Cat-'],
-		values['-Thres-'],
-		values['-THRESHOLD-'],
+		values['-ActiveCatNguong-'],
+		values['-CatNguong-'],
+		values['-DaoAnh-'],
 		)
 
 	if event == '-SAVE-':
