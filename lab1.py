@@ -69,7 +69,7 @@ def keo_dan_do_tuong_phan(img):
     # threshold = 133
     s_high = 180
     s_low = 136
-    print(img)
+    # print(img)
     for i in range(wid):
         for j in range(hei):
             # print(img[i][j], end=" ")
@@ -84,15 +84,15 @@ def keo_dan_do_tuong_phan(img):
                 s = r + 30
             img[i][j] = s
         # print('')
-    print(img)
+    # print(img)
     return(img)
-    print('Done!')
+    # print('Done!')
 
 
-def log_trans(img, ):
+def log_trans(img, ce):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     wid, hei = img.shape
-    c = 5
+    c = float(ce)
     # print(img)
     for i in range(wid):
         for j in range(hei):
@@ -102,18 +102,18 @@ def log_trans(img, ):
             # temp = round(c*math.log(1+r))
             # print(r, end=" ")
         # print('')
-    print('\n'.join([''.join(['{:4}'.format(item) for item in row])
-                     for row in img]))
+    # print('\n'.join([''.join(['{:4}'.format(item) for item in row])
+    #                  for row in img]))
     return(img)
     print('Done!')
 
 
-def pow_trans(img):
+def pow_trans(img, ce, yi):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     wid, hei = img.shape
-    c = 1
-    y = 0.4
-    print(img.max())
+    c = float(ce)
+    y = float(yi)
+    # print(img.max())
     for i in range(wid):
         for j in range(hei):
             # print(img[i][j], end=" ")
@@ -126,7 +126,8 @@ def pow_trans(img):
     print('Done!')
 
 
-def cat_lat_mat_bit(img, bit):
+def cat_lat_mat_bit(img, bitt):
+    bit = int(bitt)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # wid, hei = img.shape
     img = bit_plane_slicing(bit, img)
@@ -134,10 +135,10 @@ def cat_lat_mat_bit(img, bit):
     print('Done!')
 
 
-def cat_lat_mat_xam(img):
+def cat_lat_mat_xam(img, thres):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     wid, hei = img.shape
-    threshold = 88
+    threshold = float(thres)
     # print(img)
     for i in range(wid):
         for j in range(hei):
@@ -159,7 +160,7 @@ def can_bang_histogram(img):
     # To display image before equalization
     # display(Image.fromarray(img))
 
-    print(img)
+    # print(img)
 
     a = np.zeros((256,), dtype=np.float16)
     b = np.zeros((256,), dtype=np.float16)
@@ -174,7 +175,7 @@ def can_bang_histogram(img):
             # print("")
             a[g] = a[g] + 1
 
-    print(a)
+    # print(a)
 
     # performing histogram equalization
     tmp = 1.0 / (height * width)

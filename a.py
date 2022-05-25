@@ -1,35 +1,39 @@
-import PySimpleGUI as sg
+    if activeGray:
+        if(change == True):
+            temp = image
+            if(grayValue.isnumeric()):
+                window['-ActiveGray-'].update(True)
+                temp = cat_lat_mat_xam(pil2cv(temp), grayValue)
+                temp = cv2pil(temp)
 
-sg.theme('DarkBlue')
+                image = temp
+                backup_cat_lat_mat_xam = image
 
-layout = [
-    [sg.Checkbox('All checked',   enable_events=True, key='Check_All'),
-     sg.Checkbox('All unchecked', enable_events=True, key='Uncheck_All')],
-    [sg.HorizontalSeparator()]] + [
-    [sg.Checkbox(f'check ({j}, {i})', enable_events=True, key=f'check{j}{i}')
-        for i in range(5)] for j in range(4)
-]
+                check_cat_lat_mat_xam = True
+                change = False
+                print("gray")
+            else:
+                window['-ActiveGray-'].update(False)
+                sg.popup('Gray value is invalid!!!!')
+        elif(check_cat_lat_mat_xam != True):
+            temp = image
+            if(grayValue.isnumeric()):
+                window['-ActiveGray-'].update(True)
+                temp = cat_lat_mat_xam(pil2cv(temp), grayValue)
+                temp = cv2pil(temp)
 
-window = sg.Window ('Sample GUI', layout, finalize=True)
+                image = temp
+                backup_cat_lat_mat_xam = image
 
-while True: # Event Loop
-    event, values = window.read (timeout = 100)
-    if event == sg.WINDOW_CLOSED:
-        break
-    elif event == 'Check_All':
-        for j in range(4):
-            for i in range(5):
-                window[f'check{j}{i}'].update(True)
-        window['Uncheck_All'].update(False)
-    elif event == 'Uncheck_All':
-        for j in range(4):
-            for i in range(5):
-                window[f'check{j}{i}'].update(False)
-        window['Check_All'].update(False)
-    elif event.startswith('check'):
-        if not values[event]:
-            window['Check_All'].update(False)
+                check_cat_lat_mat_xam = True
+                change = True
+                print("gray")
+            else:
+                window['-ActiveGray-'].update(False)
+                sg.popup('Gray value is invalid!!!!')
         else:
-            window['Uncheck_All'].update(False)
-
-window.close ()
+            image = backup_cat_lat_mat_xam
+    else:
+        if(check_cat_lat_mat_xam == True):
+            check_cat_lat_mat_xam = False
+            change = True
